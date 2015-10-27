@@ -7,12 +7,27 @@ from collections import defaultdict
 
 from nltk.corpus import cmudict
 
+def extract_features(doc):
+    """
+    Extract features from a document and return a dictionary of these features
+    keyed by their abbreviation.
+    """
+
+    bow = tokenize_doc(doc)
+
+    # temporary code
+    for word in bow:
+        print num_of_syllables(word)
+
+####################
 # Utilities
 
 def tokenize_doc(doc):
     """
     Tokenize a document and return its bag-of-words representation.
     """
+
+    #TODO: make work with punctuation (but ignore apostrophes)
 
     bow = defaultdict(float)
     tokens = doc.split()
@@ -21,7 +36,7 @@ def tokenize_doc(doc):
         bow[token] += 1.0
     return bow
 
-def numsyllables(word):
+def num_of_syllables(word):
     """
     Returns the number of syllables in the input word.
     """

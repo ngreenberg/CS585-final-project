@@ -1,2 +1,5 @@
+# Ignore all python byte code files
+*.pyc
+
 # Ignore all emacs backup files
 *~
