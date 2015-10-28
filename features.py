@@ -2,8 +2,8 @@
 A module for collecting features from a document.
 """
 
+from __future__ import division
 import string
-from collections import defaultdict
 
 from nltk.tokenize import sent_tokenize
 from nltk.corpus import cmudict
@@ -17,14 +17,34 @@ def extract_features(doc):
 
     features = dict()
 
-    bow = tokenize_doc_to_words(doc)
+    words = tokenize_doc_simple(doc)
 
-    syllables_count = 0
-    for word in bow:
-        syllables_count += num_of_syllables(word) * bow[word]
-    features['sylpw'] = syllables_count / word_count(doc)
-    features['sylps'] = syllables_count / sentence_count(doc)
-    features['sylpp'] = syllables_count / paragraph_count(doc)
+    wordcount = word_count(doc)
+    sentencecount = sentence_count(doc)
+    paragraphcount = paragraph_count(doc)
+
+    # extract words features
+    features['words per sentence'] = wordcount / sentencecount
+    features['words per paragraph'] = wordcount / paragraphcount
+    features['words per document'] = wordcount
+
+    # extract sentences features
+    features['sentences per paragraph'] = sentencecount / paragraphcount
+    features['sentences per document'] = sentencecount
+
+    # extract paragraphs features
+    features['paragraphs per document'] = paragraphcount
+
+    # extract syllables features
+    syllablecount = 0
+    for word in words:
+        numofsyllables = num_of_syllables(word)
+        # if the number of syllables for a word is unknown, assume it has
+        # one syllable
+        syllablecount += numofsyllables if numofsyllables else 1
+    features['syllables per word'] = syllablecount / wordcount
+    features['syllables per sentence'] = syllablecount / sentencecount
+    features['syllables per paragraph'] = syllablecount / paragraphcount
 
     return features
 
@@ -35,13 +55,10 @@ def extract_features(doc):
 def word_count(doc):
     """
     Returns the number of words in a document as defined by
-    tokenize_doc_to_words.
+    tokenize_doc_simple.
     """
 
-    tokens = [word.strip(string.punctuation).lower()
-              for word in doc.split(" ")]
-    # remove the empty string
-    return len([token for token in tokens if token])
+    return len(tokenize_doc_simple(doc))
 
 def sentence_count(doc):
     """
@@ -59,21 +76,15 @@ def paragraph_count(doc):
     # remove the empty string
     return len([paragraph for paragraph in paragraphs if paragraph])
 
-def tokenize_doc_to_words(doc):
+def tokenize_doc_simple(doc):
     """
-    Tokenize a document and return its bag-of-words representation. Keep
-    only words, removing punctuation at the beginning and end of words, and
-    converting every word to lowercase.
+    Tokenize a document. Keep only words, removing punctuation at the
+    beginning and end of words.
     """
 
-    bow = defaultdict(float)
-    tokens = [word.strip(string.punctuation).lower()
-              for word in doc.split(" ")]
+    tokens = [word.strip(string.punctuation) for word in doc.split()]
     # remove the empty string
-    tokens = [token for token in tokens if token]
-    for token in tokens:
-        bow[token] += 1.0
-    return bow
+    return [token for token in tokens if token]
 
 def num_of_syllables(word):
     """
