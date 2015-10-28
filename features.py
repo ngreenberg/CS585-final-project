@@ -3,11 +3,13 @@ A module for collecting features from a document.
 """
 
 from __future__ import division
+from collections import defaultdict
 import string
 
 from nltk.tokenize import sent_tokenize
 from nltk.corpus import cmudict
 
+CMU_DICT = cmudict.dict() # preloaded to improve efficiency
 
 def extract_features(doc):
     """
@@ -17,7 +19,7 @@ def extract_features(doc):
 
     features = dict()
 
-    words = tokenize_doc_simple(doc)
+    bow = vectorize_doc_simple(doc)
 
     wordcount = word_count(doc)
     sentencecount = sentence_count(doc)
@@ -37,11 +39,8 @@ def extract_features(doc):
 
     # extract syllables features
     syllablecount = 0
-    for word in words:
-        numofsyllables = num_of_syllables(word)
-        # if the number of syllables for a word is unknown, assume it has
-        # one syllable
-        syllablecount += numofsyllables if numofsyllables else 1
+    for word, count in bow.iteritems():
+        syllablecount += num_of_syllables(word) * count
     features['syllables per word'] = syllablecount / wordcount
     features['syllables per sentence'] = syllablecount / sentencecount
     features['syllables per paragraph'] = syllablecount / paragraphcount
@@ -86,13 +85,27 @@ def tokenize_doc_simple(doc):
     # remove the empty string
     return [token for token in tokens if token]
 
+def vectorize_doc_simple(doc):
+    """
+    Returns the word vector of a document. Keep only words, removing
+    punctuation at the beginning and end of words, and converting all words
+    to lowercase.
+    """
+
+    bow = defaultdict(float)
+    tokens = [token.lower() for token in doc.split()]
+    for token in tokens:
+        bow[token] += 1.0
+    return bow
+
 def num_of_syllables(word):
     """
     Returns the number of syllables in a word.
     """
 
-    if word.lower() in cmudict.dict():
-        return len([phoneme for phoneme in cmudict.dict()[word.lower()][0]
+    if word.lower() in CMU_DICT:
+        return len([phoneme for phoneme in CMU_DICT[word.lower()][0]
                     if phoneme[-1].isdigit()])
+    # return 1 if the number of syllables for a word is unknown
     else:
-        return None
+        return 1
