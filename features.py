@@ -21,9 +21,16 @@ def extract_features(doc):
 
     bow = vectorize_doc_simple(doc)
 
+    charcount = char_count(doc)
     wordcount = word_count(doc)
     sentencecount = sentence_count(doc)
     paragraphcount = paragraph_count(doc)
+
+    # extract characters features
+    features['characters per word'] = charcount / wordcount
+    features['characters per sentence'] = charcount / sentencecount
+    features['characters per paragraph'] = charcount / paragraphcount
+    features['characters per document'] = charcount
 
     # extract words features
     features['words per sentence'] = wordcount / sentencecount
@@ -51,6 +58,13 @@ def extract_features(doc):
 #########################
 # Utilities
 
+def char_count(doc):
+    """
+    Returns the number of characters in a document.
+    """
+
+    return len(doc)
+
 def word_count(doc):
     """
     Returns the number of words in a document as defined by
@@ -71,7 +85,7 @@ def paragraph_count(doc):
     Returns the number of paragraphs in a document.
     """
 
-    paragraphs = doc.split("\n")
+    paragraphs = doc.split("\n\n")
     # remove the empty string
     return len([paragraph for paragraph in paragraphs if paragraph])
 
