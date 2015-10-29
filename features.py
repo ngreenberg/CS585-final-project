@@ -120,6 +120,6 @@ def num_of_syllables(word):
     if word.lower() in CMU_DICT:
         return len([phoneme for phoneme in CMU_DICT[word.lower()][0]
                     if phoneme[-1].isdigit()])
-    # return 1 if the number of syllables for a word is unknown
+    # If word is unknown, assume 1 syllable/3 letters (average for English)
     else:
-        return 1
+        return len(word)//3
