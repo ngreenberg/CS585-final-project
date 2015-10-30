@@ -1,3 +1,6 @@
+# Ignore the dataset
+Gutenberg/
+
 # Ignore all python byte code files
 *.pyc
 
