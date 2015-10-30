@@ -6,7 +6,8 @@ from __future__ import division
 from collections import defaultdict
 import string
 
-from nltk.tokenize import sent_tokenize
+from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk import pos_tag
 from nltk.corpus import cmudict
 
 CMU_DICT = cmudict.dict() # preloaded to improve efficiency
@@ -57,6 +58,14 @@ def extract_features(doc):
 
 #########################
 # Utilities
+
+def pos_tag_doc(doc):
+    """
+    Assigns a part of speech tag to each word in a document and returns
+    these pairings.
+    """
+
+    return pos_tag(word_tokenize(doc))
 
 def char_count(doc):
     """
