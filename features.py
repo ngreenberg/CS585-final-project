@@ -12,10 +12,10 @@ from nltk.corpus import cmudict
 
 CMU_DICT = cmudict.dict() # preloaded to improve efficiency
 
-def extract_features(doc):
+def extract_features(doc, label):
     """
     Extract features from a document and returns a dictionary of these
-    features keyed by their abbreviation.
+    features keyed by their abbreviation and document label.
     """
 
     features = dict()
@@ -28,30 +28,30 @@ def extract_features(doc):
     paragraphcount = paragraph_count(doc)
 
     # extract characters features
-    features['characters per word'] = charcount / wordcount
-    features['characters per sentence'] = charcount / sentencecount
-    features['characters per paragraph'] = charcount / paragraphcount
-    features['characters per document'] = charcount
+    features['%s_characters per word' % label] = charcount / wordcount
+    features['%s_characters per sentence' % label] = charcount / sentencecount
+    features['%s_characters per paragraph' % label] = charcount / paragraphcount
+    features['%s_characters per document' % label] = charcount
 
     # extract words features
-    features['words per sentence'] = wordcount / sentencecount
-    features['words per paragraph'] = wordcount / paragraphcount
-    features['words per document'] = wordcount
+    features['%s_words per sentence' % label] = wordcount / sentencecount
+    features['%s_words per paragraph' % label] = wordcount / paragraphcount
+    features['%s_words per document' % label] = wordcount
 
     # extract sentences features
-    features['sentences per paragraph'] = sentencecount / paragraphcount
-    features['sentences per document'] = sentencecount
+    features['%s_sentences per paragraph' % label] = sentencecount / paragraphcount
+    features['%s_sentences per document' % label] = sentencecount
 
     # extract paragraphs features
-    features['paragraphs per document'] = paragraphcount
+    features['%s_paragraphs per document' % label] = paragraphcount
 
     # extract syllables features
     syllablecount = 0
     for word, count in bow.iteritems():
         syllablecount += num_of_syllables(word) * count
-    features['syllables per word'] = syllablecount / wordcount
-    features['syllables per sentence'] = syllablecount / sentencecount
-    features['syllables per paragraph'] = syllablecount / paragraphcount
+    features['%s_syllables per word' % label] = syllablecount / wordcount
+    features['%s_syllables per sentence' % label] = syllablecount / sentencecount
+    features['%s_syllables per paragraph' % label] = syllablecount / paragraphcount
 
     return features
 
