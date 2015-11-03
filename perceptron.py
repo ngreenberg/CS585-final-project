@@ -8,7 +8,7 @@ import codecs
 import features
 
 authors = []
-path = "C:/Users/Patrick/Downloads/Gutenberg/subset"
+path = "Gutenberg/txt"
 
 def create_dataset(size=None):
 	"""
@@ -17,12 +17,16 @@ def create_dataset(size=None):
 	train, test = [],[]
 	for file_name in os.listdir(path)[:size]:
 		base_name = os.path.basename(file_name)
-		author = base_name.split('-',1)[0]
+		author = base_name.split('_',1)[0]
+		if author != 'Abraham Lincoln':
+			author = 'Not Abraham Lincoln'
+		if not author in authors:
+			authors.append(author)
+
 		print "Reading in from %s" % base_name
 		with codecs.open(os.path.join(path, file_name),'r','utf8') as doc:
 			content = doc.read()
 			feat_vec = features.extract_features(content)
-			authors.append(author)
 			if random.randint(0,1):
 				train.append((feat_vec, author))
 			else:
@@ -35,7 +39,7 @@ def train_classifier(train, test, stepsize=1, numpasses=10):
 	Trains the classifier over a series of passes, and tests at each iteration
 	"""
 	weights = defaultdict(float)
-
+	
 	for iteration in range(numpasses):
 		print "Training iteration %d" % iteration
 		random.shuffle(train)
@@ -60,7 +64,7 @@ def test_classifier(test, weights):
 		if pred_author == author:
 			correct += 1
 		total += 1
-	print "		%d/%d = %.3f%% accuracy" % (correct, total, correct/total)
+	print "		%d/%d = %.3f accuracy" % (correct, total, correct/total)
 
 
 def predict_author(feat_vec, weights):
@@ -70,7 +74,7 @@ def predict_author(feat_vec, weights):
 	scores = defaultdict(float)
 	for author in authors:
 		author_feat_vec = label_feat_vector(feat_vec, author)
-		scores[author] = dict_dotprod(author_feat_vec , weights)
+		scores[author] = dict_dotprod(author_feat_vec, weights)
 	return dict_argmax(scores)
 
 def label_feat_vector(feat_vec, label):
@@ -99,5 +103,5 @@ def dict_dotprod(d1, d2):
     return total
 
 if __name__=='__main__':
-	training_set, testing_set = create_dataset()
+	training_set, testing_set = create_dataset(40)
 	train_classifier(training_set, testing_set)
