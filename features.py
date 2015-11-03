@@ -12,7 +12,7 @@ from nltk.corpus import cmudict
 
 CMU_DICT = cmudict.dict() # preloaded to improve efficiency
 
-def extract_features(doc, label):
+def extract_features(doc):
     """
     Extract features from a document and returns a dictionary of these
     features keyed by their abbreviation and document label.

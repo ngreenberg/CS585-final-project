@@ -7,18 +7,20 @@ import random
 import features
 
 authors = []
-path = "C:/Users/Patrick/Downloads/Gutenberg/txt"
+path = "Gutenberg/txt"
 
-def create_dataset():
+def create_dataset(size=None):
 	"""
 	Reads in a set of texts and split into train and test sets, tagged by author
 	"""
+        if size is None:
+                size = len(os.listdir(path))
 	train, test = [],[]
-	for file_name in os.listdir(path):
+	for file_name in os.listdir(path)[:size]:
 		author = os.path.basename(file_name).split('-',1)[0]
 		with open(os.path.join(path, file_name),'r') as doc:
-			content = doc.read()
-			feat_vec = features.extract_features(doc)
+			content = doc.read().decode('utf-8')
+			feat_vec = features.extract_features(content)
 			authors.append(author)
 			if random.randint(0,1):
 				train.append((feat_vec, author))
@@ -27,7 +29,7 @@ def create_dataset():
 	return train, test
 
 
-def train(train, test, stepsize=1, numpasses=10):
+def train(train, testdata, stepsize=1, numpasses=10):
 	"""
 	Trains the classifier over a series of passes, and tests at each iteration
 	"""
@@ -37,14 +39,14 @@ def train(train, test, stepsize=1, numpasses=10):
 		print "Training iteration %d" % iteration
 		random.shuffle(train)
 		for feat_vec, author in train:
-			pred_author = predict_author(doc,weights)
+			pred_author = predict_author(feat_vec,weights)
 			if pred_author != author:
 				labeled_feat_vec = label_feat_vector(feat_vec, author)
 				for feat, weight in labeled_feat_vec.iteritems():
 					weights[feat]+=stepsize*weight
 
 		print "Testing iteration %d" % iteration
-		test(test, weights)
+		test(testdata, weights)
 	return weights
 
 def test(docs, weights):
@@ -67,12 +69,12 @@ def predict_author(feat_vec, weights):
 	scores = defaultdict(float)
 	for author in authors:
 		author_feat_vec = label_feat_vector(feat_vec, author)
-		scores[label] = dict_dotprod(author_feat_vec , weights)
+		scores[author] = dict_dotprod(author_feat_vec , weights)
 	return dict_argmax(scores)
 
 def label_feat_vector(feat_vec, label):
 	labeled_feat_vec = dict()
-	for tag, weight in feat_vec:
+	for tag, weight in feat_vec.iteritems():
 		labeled_feat_vec['%s_%s' % (label, tag)] = weight
 	return labeled_feat_vec
 
@@ -96,5 +98,5 @@ def dict_dotprod(d1, d2):
     return total
 
 if __name__=='__main__':
-	training_set, testing_set = create_dataset()
+	training_set, testing_set = create_dataset(size=100)
 	train(training_set, testing_set)
