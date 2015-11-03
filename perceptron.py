@@ -15,14 +15,15 @@ def create_dataset():
 	"""
 	train, test = [],[]
 	for file_name in os.listdir(path):
+		author = os.path.basename(file_name).split('-',1)[0]
 		with open(os.path.join(path, file_name),'r') as doc:
-			author = os.path.basename(doc.name).split('-',1)[0]
 			content = doc.read()
+			feat_vec = features.extract_features(doc)
 			authors.append(author)
 			if random.randint(0,1):
-				train.append((content, author))
+				train.append((feat_vec, author))
 			else:
-				test.append((content, author))
+				test.append((feat_vec, author))
 	return train, test
 
 
@@ -35,11 +36,11 @@ def train(train, test, stepsize=1, numpasses=10):
 	for iteration in range(numpasses):
 		print "Training iteration %d" % iteration
 		random.shuffle(train)
-		for doc, author in train:
+		for feat_vec, author in train:
 			pred_author = predict_author(doc,weights)
 			if pred_author != author:
-				feat_vec = features.extract_features(doc, author)
-				for feature, weight in feat_vec.iteritems():
+				labeled_feat_vec = label_feat_vector(feat_vec, author)
+				for feat, weight in labeled_feat_vec.iteritems():
 					weights[feat]+=stepsize*weight
 
 		print "Testing iteration %d" % iteration
@@ -59,15 +60,21 @@ def test(docs, weights):
 	print "		%d/%d = %.4f accuracy" % (correct, total, correct/total)
 
 
-def predict_author(doc, weights):
+def predict_author(feat_vec, weights):
 	"""
 	Finds the author with the highest score under the model
 	"""
 	scores = defaultdict(float)
 	for author in authors:
-		author_feat_vec = features.extract_features(doc, author)
-		scores[label] = dict_dotprod(author_feat_vec,weights)
+		author_feat_vec = label_feat_vector(feat_vec, author)
+		scores[label] = dict_dotprod(author_feat_vec , weights)
 	return dict_argmax(scores)
+
+def label_feat_vector(feat_vec, label):
+	labeled_feat_vec = dict()
+	for tag, weight in feat_vec:
+		labeled_feat_vec['%s_%s' % (label, tag)] = weight
+	return labeled_feat_vec
 
 
 ###################################
