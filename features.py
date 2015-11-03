@@ -28,30 +28,30 @@ def extract_features(doc, label):
     paragraphcount = paragraph_count(doc)
 
     # extract characters features
-    features['%s_characters per word' % label] = charcount / wordcount
-    features['%s_characters per sentence' % label] = charcount / sentencecount
-    features['%s_characters per paragraph' % label] = charcount / paragraphcount
-    features['%s_characters per document' % label] = charcount
+    features['characters per word'] = charcount / wordcount
+    features['characters per sentence'] = charcount / sentencecount
+    features['characters per paragraph'] = charcount / paragraphcount
+    features['characters per document'] = charcount
 
     # extract words features
-    features['%s_words per sentence' % label] = wordcount / sentencecount
-    features['%s_words per paragraph' % label] = wordcount / paragraphcount
-    features['%s_words per document' % label] = wordcount
+    features['words per sentence'] = wordcount / sentencecount
+    features['words per paragraph'] = wordcount / paragraphcount
+    features['words per document'] = wordcount
 
     # extract sentences features
-    features['%s_sentences per paragraph' % label] = sentencecount / paragraphcount
-    features['%s_sentences per document' % label] = sentencecount
+    features['sentences per paragraph'] = sentencecount / paragraphcount
+    features['sentences per document'] = sentencecount
 
     # extract paragraphs features
-    features['%s_paragraphs per document' % label] = paragraphcount
+    features['paragraphs per document' = paragraphcount
 
     # extract syllables features
     syllablecount = 0
     for word, count in bow.iteritems():
         syllablecount += num_of_syllables(word) * count
-    features['%s_syllables per word' % label] = syllablecount / wordcount
-    features['%s_syllables per sentence' % label] = syllablecount / sentencecount
-    features['%s_syllables per paragraph' % label] = syllablecount / paragraphcount
+    features['syllables per word'] = syllablecount / wordcount
+    features['syllables per sentence'] = syllablecount / sentencecount
+    features['syllables per paragraph'] = syllablecount / paragraphcount
 
     return features
 
