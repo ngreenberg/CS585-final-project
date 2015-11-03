@@ -43,7 +43,7 @@ def extract_features(doc, label):
     features['sentences per document'] = sentencecount
 
     # extract paragraphs features
-    features['paragraphs per document' = paragraphcount
+    features['paragraphs per document'] = paragraphcount
 
     # extract syllables features
     syllablecount = 0
