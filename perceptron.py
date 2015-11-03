@@ -3,23 +3,24 @@ from collections import defaultdict
 
 import os
 import random
+import codecs
 
 import features
 
 authors = []
-path = "Gutenberg/txt"
+path = "C:/Users/Patrick/Downloads/Gutenberg/subset"
 
 def create_dataset(size=None):
 	"""
 	Reads in a set of texts and split into train and test sets, tagged by author
 	"""
-        if size is None:
-                size = len(os.listdir(path))
 	train, test = [],[]
 	for file_name in os.listdir(path)[:size]:
-		author = os.path.basename(file_name).split('-',1)[0]
-		with open(os.path.join(path, file_name),'r') as doc:
-			content = doc.read().decode('utf-8')
+		base_name = os.path.basename(file_name)
+		author = base_name.split('-',1)[0]
+		print "Reading in from %s" % base_name
+		with codecs.open(os.path.join(path, file_name),'r','utf8') as doc:
+			content = doc.read()
 			feat_vec = features.extract_features(content)
 			authors.append(author)
 			if random.randint(0,1):
@@ -29,7 +30,7 @@ def create_dataset(size=None):
 	return train, test
 
 
-def train(train, testdata, stepsize=1, numpasses=10):
+def train_classifier(train, test, stepsize=1, numpasses=10):
 	"""
 	Trains the classifier over a series of passes, and tests at each iteration
 	"""
@@ -46,20 +47,20 @@ def train(train, testdata, stepsize=1, numpasses=10):
 					weights[feat]+=stepsize*weight
 
 		print "Testing iteration %d" % iteration
-		test(testdata, weights)
+		test_classifier(test, weights)
 	return weights
 
-def test(docs, weights):
+def test_classifier(test, weights):
 	"""
 	Tests classifier on test set
 	"""
 	correct, total = 0,0
-	for doc, author in docs:
-		pred_author = predict_author(doc, weights)
+	for feat_vec, author in test:
+		pred_author = predict_author(feat_vec, weights)
 		if pred_author == author:
 			correct += 1
 		total += 1
-	print "		%d/%d = %.4f accuracy" % (correct, total, correct/total)
+	print "		%d/%d = %.3f%% accuracy" % (correct, total, correct/total)
 
 
 def predict_author(feat_vec, weights):
@@ -98,5 +99,5 @@ def dict_dotprod(d1, d2):
     return total
 
 if __name__=='__main__':
-	training_set, testing_set = create_dataset(size=100)
-	train(training_set, testing_set)
+	training_set, testing_set = create_dataset()
+	train_classifier(training_set, testing_set)
