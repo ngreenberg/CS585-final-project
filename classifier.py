@@ -85,7 +85,6 @@ if __name__ == '__main__':
     indices = np.random.permutation(len(features))
 
     num_test = int(sys.argv[1])
-    print num_test
 
     print '---partitioning dataset---',
     print '[' +  datetime.datetime.now().ctime() + ']'
