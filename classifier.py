@@ -45,7 +45,7 @@ def index_authors(authors):
                               for author, count in author_indices.items()}
     print 'author indices:'
     for i in range(len(inverse_author_indices)):
-        print '  ' + str(i) + ' - ' + inverse_author_indices[i]
+        print '  ', str(i) + ' - ' + inverse_author_indices[i]
     return [author_indices[author] for author in authors]
 
 def get_content(file_name):
