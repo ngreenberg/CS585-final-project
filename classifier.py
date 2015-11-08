@@ -41,6 +41,11 @@ def index_authors(authors):
 
     author_indices = {author: count
                       for count, author in enumerate(np.unique(authors))}
+    inverse_author_indices = {count: author
+                              for author, count in author_indices.items()}
+    print 'author indices:'
+    for i in range(len(inverse_author_indices)):
+        print '  ' + str(i) + ' - ' + inverse_author_indices[i]
     return [author_indices[author] for author in authors]
 
 def get_content(file_name):
