@@ -6,6 +6,9 @@ from __future__ import division
 import os
 import codecs
 
+import datetime
+import sys
+
 import numpy as np
 
 from sklearn.neighbors import KNeighborsClassifier
@@ -67,34 +70,50 @@ def accuracy(predictions, gold_labels):
     return correct / len(gold_labels)
 
 if __name__ == '__main__':
-    print '---creating dataset---'
+    print '---creating dataset---',
+    print '[' +  datetime.datetime.now().ctime() + ']'
     features, authors = create_dataset()
-    print '---created dataset---'
+    print '---created dataset---',
+    print '[' +  datetime.datetime.now().ctime() + ']'
 
     np.random.seed()
     indices = np.random.permutation(len(features))
 
-    print '---partitioning dataset---'
-    features_train = features[indices[:-20]]
-    authors_train = authors[indices[:-20]]
-    features_test = features[indices[-20:]]
-    authors_test = authors[indices[-20:]]
-    print '---partitioned dataset---'
+    num_test = int(sys.argv[1])
+    print num_test
 
-    print '---training knn---'
+    print '---partitioning dataset---',
+    print '[' +  datetime.datetime.now().ctime() + ']'
+    features_train = features[indices[:-num_test]]
+    authors_train = authors[indices[:-num_test]]
+    features_test = features[indices[-num_test:]]
+    authors_test = authors[indices[-num_test:]]
+    print '---partitioned dataset---',
+    print '[' +  datetime.datetime.now().ctime() + ']'
+
+    print '---training knn---',
+    print '[' +  datetime.datetime.now().ctime() + ']'
     knn = KNeighborsClassifier()
     knn.fit(features_train, authors_train)
-    print '---trained knn---'
+    print '---trained knn---',
+    print '[' +  datetime.datetime.now().ctime() + ']'
 
-    print '---training logistic---'
+    print '---training logistic---',
+    print '[' +  datetime.datetime.now().ctime() + ']'
     logistic = linear_model.LogisticRegression(C=1e5)
     logistic.fit(features_train, authors_train)
-    print '---trained logistic---'
+    print '---trained logistic---',
+    print '[' +  datetime.datetime.now().ctime() + ']'
 
-    print '---training svc---'
-    svc = svm.SVC(kernel='linear')
-    svc.fit(features_train, authors_train)
-    print '---trained svc---'
+    # svc is computationally expensive
+    # print '---training svc---',
+    # print '[' +  datetime.datetime.now().ctime() + ']'
+    # svc = svm.SVC(kernel='linear')
+    # svc.fit(features_train, authors_train)
+    # print '---trained svc---',
+    # print '[' +  datetime.datetime.now().ctime() + ']'
+
+    print
 
     print 'knn:     ', knn.predict(features_test)
     print '  ', accuracy(knn.predict(features_test), authors_test)
@@ -102,8 +121,8 @@ if __name__ == '__main__':
     print 'logistic:', logistic.predict(features_test)
     print '  ', accuracy(logistic.predict(features_test), authors_test)
 
-    print 'svc:     ', svc.predict(features_test)
-    print '  ', accuracy(svc.predict(features_test), authors_test)
+    # print 'svc:     ', svc.predict(features_test)
+    # print '  ', accuracy(svc.predict(features_test), authors_test)
 
     print
     print 'gold:    ', authors_test
