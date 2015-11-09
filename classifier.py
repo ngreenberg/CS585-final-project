@@ -13,6 +13,7 @@ import numpy as np
 
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import linear_model
+from sklearn.ensemble import RandomForestClassifier
 from sklearn import svm
 
 from features import extract_features
@@ -109,6 +110,14 @@ if __name__ == '__main__':
     print '---trained logistic---',
     print '[' +  datetime.datetime.now().ctime() + ']'
 
+    print '---training random forest---',
+    print '[' +  datetime.datetime.now().ctime() + ']'
+    randomforest = RandomForestClassifier(n_estimators=100)
+    randomforest.fit(features_train, authors_train)
+    print '---trained random forest---',
+    print '[' +  datetime.datetime.now().ctime() + ']'
+
+
     # svc is computationally expensive
     # print '---training svc---',
     # print '[' +  datetime.datetime.now().ctime() + ']'
@@ -119,14 +128,17 @@ if __name__ == '__main__':
 
     print
 
-    print 'knn:     ', knn.predict(features_test)
+    print 'knn:          ', knn.predict(features_test)
     print '  ', accuracy(knn.predict(features_test), authors_test)
 
-    print 'logistic:', logistic.predict(features_test)
+    print 'logistic:     ', logistic.predict(features_test)
     print '  ', accuracy(logistic.predict(features_test), authors_test)
 
-    # print 'svc:     ', svc.predict(features_test)
+    print 'random forest:', randomforest.predict(features_test)
+    print '  ', accuracy(randomforest.predict(features_test), authors_test)
+
+    # print 'svc:          ', svc.predict(features_test)
     # print '  ', accuracy(svc.predict(features_test), authors_test)
 
     print
-    print 'gold:    ', authors_test
+    print 'gold:         ', authors_test
