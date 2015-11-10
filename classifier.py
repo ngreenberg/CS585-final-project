@@ -18,6 +18,8 @@ from sklearn import svm
 
 from features import extract_features
 
+from progress import progress_bar
+
 PATH = 'Gutenberg/dataset'
 
 def create_dataset():
@@ -30,8 +32,14 @@ def create_dataset():
 
     authors = [file_name.split('___')[0] for file_name in files]
     authors = index_authors(authors)
-    features = [feature_vector(extract_features(get_content(file_name)))
-                for file_name in files]
+    features = []
+    for count, file_name in enumerate(files):
+        sys.stdout.write('\r%s' % progress_bar(count, len(files)))
+        sys.stdout.flush()
+        features.append(feature_vector(extract_features(get_content(file_name))))
+    # features = [feature_vector(extract_features(get_content(file_name)))
+    #             for file_name in files]
+    print '\r%s' % progress_bar(len(files), len(files))
 
     return np.array(features), np.array(authors)
 
@@ -44,9 +52,10 @@ def index_authors(authors):
                       for count, author in enumerate(np.unique(authors))}
     inverse_author_indices = {count: author
                               for author, count in author_indices.items()}
-    print 'author indices:'
+    print '  author indices:'
     for i in range(len(inverse_author_indices)):
-        print '  ', str(i) + ' - ' + inverse_author_indices[i]
+        print '    ', str(i) + ' - ' + inverse_author_indices[i]
+    print
     return [author_indices[author] for author in authors]
 
 def get_content(file_name):
@@ -81,6 +90,7 @@ if __name__ == '__main__':
     features, authors = create_dataset()
     print '---created dataset---',
     print '[' +  datetime.datetime.now().ctime() + ']'
+    print
 
     np.random.seed()
     indices = np.random.permutation(len(features))
@@ -95,6 +105,7 @@ if __name__ == '__main__':
     authors_test = authors[indices[-num_test:]]
     print '---partitioned dataset---',
     print '[' +  datetime.datetime.now().ctime() + ']'
+    print
 
     print '---training knn---',
     print '[' +  datetime.datetime.now().ctime() + ']'
@@ -102,6 +113,7 @@ if __name__ == '__main__':
     knn.fit(features_train, authors_train)
     print '---trained knn---',
     print '[' +  datetime.datetime.now().ctime() + ']'
+    print
 
     print '---training logistic---',
     print '[' +  datetime.datetime.now().ctime() + ']'
@@ -109,6 +121,7 @@ if __name__ == '__main__':
     logistic.fit(features_train, authors_train)
     print '---trained logistic---',
     print '[' +  datetime.datetime.now().ctime() + ']'
+    print
 
     print '---training random forest---',
     print '[' +  datetime.datetime.now().ctime() + ']'
@@ -116,6 +129,7 @@ if __name__ == '__main__':
     randomforest.fit(features_train, authors_train)
     print '---trained random forest---',
     print '[' +  datetime.datetime.now().ctime() + ']'
+    print
 
 
     # svc is computationally expensive
