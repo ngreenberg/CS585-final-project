@@ -11,6 +11,8 @@ import sys
 
 import numpy as np
 
+import spacy.en
+
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import linear_model
 from sklearn.ensemble import RandomForestClassifier
@@ -33,10 +35,12 @@ def create_dataset():
     authors = [file_name.split('___')[0] for file_name in files]
     authors = index_authors(authors)
     features = []
+    nlp = spacy.en.English()
     for count, file_name in enumerate(files):
         sys.stdout.write('\r%s' % progress_bar(count, len(files)))
         sys.stdout.flush()
-        features.append(feature_vector(extract_features(get_content(file_name))))
+        features.append(feature_vector(extract_features(get_content(file_name),
+                                                        nlp)))
     # features = [feature_vector(extract_features(get_content(file_name)))
     #             for file_name in files]
     print '\r%s' % progress_bar(len(files), len(files))
@@ -85,6 +89,8 @@ def accuracy(predictions, gold_labels):
     return correct / len(gold_labels)
 
 if __name__ == '__main__':
+    print
+
     print '---creating dataset---',
     print '[' +  datetime.datetime.now().ctime() + ']'
     features, authors = create_dataset()
