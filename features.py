@@ -10,9 +10,11 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk import pos_tag
 from nltk.corpus import cmudict
 
+import spacy.en
+
 CMU_DICT = cmudict.dict() # preloaded to improve efficiency
 
-def extract_features(doc):
+def extract_features(doc, nlp):
     """
     Extract features from a document and returns a dictionary of these
     features keyed by their abbreviation and document label.
@@ -53,6 +55,30 @@ def extract_features(doc):
     features['syllables per sentence'] = syllablecount / sentencecount
     features['syllables per paragraph'] = syllablecount / paragraphcount
 
+    # extract part of speech features
+    tokens = nlp(doc, tag=True, parse=False)
+    pos_counts = defaultdict(float)
+    for token in tokens:
+        pos_counts[token.pos] += 1.0
+    # pos_counts = vectorize_pos_tags(doc)
+    poswordcount = sum(pos_counts.values())
+    for i in xrange(82, 101):
+        features['%d per word' % i] = pos_counts[i] / poswordcount
+    # features['97 per word'] = pos_counts[97] / poswordcount
+    # features['82 per word'] = pos_counts[82] / poswordcount
+    # features['83 per word'] = pos_counts[83] / poswordcount
+    # features['87 per word'] = pos_counts[87] / poswordcount
+    # features['89 per word'] = pos_counts[89] / poswordcount
+    # features['94 per word'] = pos_counts[94] / poswordcount
+    # features['NN per word'] = pos_counts['NN'] / poswordcount
+    # features['NNS per word'] = pos_counts['NNS'] / poswordcount
+    # features['IN per word'] = pos_counts['IN'] / poswordcount
+    # features['DT per word'] = pos_counts['DT'] / poswordcount
+    # features['JJ per word'] = pos_counts['JJ'] / poswordcount
+    # features['RB per word'] = pos_counts['RB'] / poswordcount
+    # features['PRP per word'] = pos_counts['PRP'] / poswordcount
+    # features['CC per word'] = pos_counts['CC'] / poswordcount
+
     return features
 
 
@@ -66,6 +92,17 @@ def pos_tag_doc(doc):
     """
 
     return pos_tag(word_tokenize(doc))
+
+def vectorize_pos_tags(doc):
+    """
+    Creates a count of part of speech tags for a document.
+    """
+
+    pos_counts = defaultdict(float)
+    words = pos_tag_doc(doc)
+    for word, tag in words:
+        pos_counts[tag] += 1.0
+    return pos_counts
 
 def char_count(doc):
     """
