@@ -16,6 +16,7 @@ def progress_bar(index, length):
     complete = 'COMPLETE!!!'
     message_width = len(max((incomplete, complete), key=len)) + 2
     message = complete if index == length else incomplete
+    message = message.ljust(message_width)
 
     bar_width = screen_width - percent_width - message_width - 4
     bar_progress = '#' * int(progress * bar_width)
