@@ -34,16 +34,19 @@ def create_dataset():
 
     authors = [file_name.split('___')[0] for file_name in files]
     authors = index_authors(authors)
+
     features = []
     nlp = spacy.en.English()
+
     for count, file_name in enumerate(files):
         sys.stdout.write('\r%s' % progress_bar(count, len(files)))
         sys.stdout.flush()
         features.append(feature_vector(extract_features(get_content(file_name),
                                                         nlp)))
-    # features = [feature_vector(extract_features(get_content(file_name)))
-    #             for file_name in files]
     print '\r%s' % progress_bar(len(files), len(files))
+
+    # features = [feature_vector(extract_features(get_content(file_name), nlp))
+    #             for file_name in files]
 
     return np.array(features), np.array(authors)
 
@@ -88,7 +91,7 @@ def accuracy(predictions, gold_labels):
 
     return correct / len(gold_labels)
 
-if __name__ == '__main__':
+def main(arg):
     print
 
     print '---creating dataset---',
@@ -101,7 +104,7 @@ if __name__ == '__main__':
     np.random.seed()
     indices = np.random.permutation(len(features))
 
-    num_test = int(sys.argv[1])
+    num_test = arg
 
     print '---partitioning dataset---',
     print '[' +  datetime.datetime.now().ctime() + ']'
@@ -139,12 +142,12 @@ if __name__ == '__main__':
 
 
     # svc is computationally expensive
-    # print '---training svc---',
-    # print '[' +  datetime.datetime.now().ctime() + ']'
-    # svc = svm.SVC(kernel='linear')
-    # svc.fit(features_train, authors_train)
-    # print '---trained svc---',
-    # print '[' +  datetime.datetime.now().ctime() + ']'
+    print '---training svc---',
+    print '[' +  datetime.datetime.now().ctime() + ']'
+    svc = svm.SVC(kernel='linear')
+    svc.fit(features_train, authors_train)
+    print '---trained svc---',
+    print '[' +  datetime.datetime.now().ctime() + ']'
 
     print
 
@@ -153,12 +156,19 @@ if __name__ == '__main__':
 
     print 'logistic:     ', logistic.predict(features_test)
     print '  ', accuracy(logistic.predict(features_test), authors_test)
+    # print logistic.coef_
 
     print 'random forest:', randomforest.predict(features_test)
     print '  ', accuracy(randomforest.predict(features_test), authors_test)
+    # importances = randomforest.feature_importances_
 
-    # print 'svc:          ', svc.predict(features_test)
-    # print '  ', accuracy(svc.predict(features_test), authors_test)
+    print 'svc:          ', svc.predict(features_test)
+    print '  ', accuracy(svc.predict(features_test), authors_test)
 
     print
     print 'gold:         ', authors_test
+
+    return knn, logistic, randomforest, features_test, authors_test
+
+if __name__ == '__main__':
+    main(int(sys.argv[1]))
