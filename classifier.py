@@ -11,20 +11,18 @@ import sys
 
 import numpy as np
 
-import spacy.en
-
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import linear_model
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import svm
 
-from features import extract_features
+from features import Features
 
 from progress import progress_bar
 
 PATH = 'Gutenberg/dataset'
 
-def create_dataset():
+def create_dataset(featext):
     """
     Reads in a set of texts and splits it into train and test sets, tagged
     by author.
@@ -36,16 +34,14 @@ def create_dataset():
     authors = index_authors(authors)
 
     features = []
-    nlp = spacy.en.English()
 
     for count, file_name in enumerate(files):
         sys.stdout.write('\r%s' % progress_bar(count, len(files)))
         sys.stdout.flush()
-        features.append(feature_vector(extract_features(get_content(file_name),
-                                                        nlp)))
+        features.append(feature_vector(featext.extract_features(get_content(file_name))))
     print '\r%s' % progress_bar(len(files), len(files))
 
-    # features = [feature_vector(extract_features(get_content(file_name), nlp))
+    # features = [feature_vector(FeatExtextract_features(get_content(file_name)))
     #             for file_name in files]
 
     return np.array(features), np.array(authors)
@@ -94,9 +90,16 @@ def accuracy(predictions, gold_labels):
 def main(arg):
     print
 
+    print '---creating features extractor---'
+    print '[' +  datetime.datetime.now().ctime() + ']'
+    featext = Features()
+    print '---created features extractor---'
+    print '[' +  datetime.datetime.now().ctime() + ']'
+    print
+
     print '---creating dataset---',
     print '[' +  datetime.datetime.now().ctime() + ']'
-    features, authors = create_dataset()
+    features, authors = create_dataset(featext)
     print '---created dataset---',
     print '[' +  datetime.datetime.now().ctime() + ']'
     print
@@ -142,12 +145,12 @@ def main(arg):
 
 
     # svc is computationally expensive
-    print '---training svc---',
-    print '[' +  datetime.datetime.now().ctime() + ']'
-    svc = svm.SVC(kernel='linear')
-    svc.fit(features_train, authors_train)
-    print '---trained svc---',
-    print '[' +  datetime.datetime.now().ctime() + ']'
+    # print '---training svc---',
+    # print '[' +  datetime.datetime.now().ctime() + ']'
+    # svc = svm.SVC(kernel='linear')
+    # svc.fit(features_train, authors_train)
+    # print '---trained svc---',
+    # print '[' +  datetime.datetime.now().ctime() + ']'
 
     print
 
@@ -162,8 +165,8 @@ def main(arg):
     print '  ', accuracy(randomforest.predict(features_test), authors_test)
     # importances = randomforest.feature_importances_
 
-    print 'svc:          ', svc.predict(features_test)
-    print '  ', accuracy(svc.predict(features_test), authors_test)
+    # print 'svc:          ', svc.predict(features_test)
+    # print '  ', accuracy(svc.predict(features_test), authors_test)
 
     print
     print 'gold:         ', authors_test
