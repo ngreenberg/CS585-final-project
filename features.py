@@ -64,10 +64,24 @@ class Features(object):
         features['syllables per paragraph'] = syllablecount / paragraphcount
 
         # extract part of speech features
-        pos_counts = self.vectorize_pos_tags(doc)
+        tokens = self.pos_tag_doc(doc)
+
+        pos_counts = self.vectorize_pos_tags(tokens)
         poswordcount = sum(pos_counts.values())
         for i in xrange(82, 101):
             features['%d per word' % i] = pos_counts[i] / poswordcount
+
+
+        # extract noun phrase features
+        phrase_sum = 0
+        phrase_count = 0
+        noun_chunks = tokens.noun_chunks
+        for chunk in noun_chunks:
+            phrase = chunk.orth_
+            if not phrase.isspace():
+                phrase_sum += len(chunk)
+                phrase_count += 1
+        features['words per noun phrase'] = phrase_sum / phrase_count
 
         return features
 
@@ -81,15 +95,14 @@ class Features(object):
         these pairings.
         """
 
-        return self.spacy(doc, tag=True, parse=False)
+        return self.spacy(doc)
 
-    def vectorize_pos_tags(self, doc):
+    def vectorize_pos_tags(self, tokens):
         """
         Creates a count of part of speech tags for a document.
         """
 
         pos_counts = defaultdict(float)
-        tokens = self.pos_tag_doc(doc)
         for token in tokens:
             pos_counts[token.pos] += 1.0
         return pos_counts
