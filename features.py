@@ -82,12 +82,69 @@ class Features(object):
                 phrase_sum += len(chunk)
                 phrase_count += 1
         features['words per noun phrase'] = phrase_sum / phrase_count
+        
+        # extract character trigram frequency features
+        ngramfreqs = defaultdict(float)
+        for word, count in bow.iteritems():
+            trigrams = zip(word, word[1:], word[2:])
+            for instance in trigrams:
+                ngramfreqs[instance]+=count
+        sortedfreqs = sorted(ngramfreqs.items, key = operator.itemgetter(1), reverse = True)
+        add_stat_features(sortedfreqs[:300], 'char trigram frequency')
 
+        #extract word and POS trigram freqency features
+        POSfreqs = defaultdict(float)
+        wordfreqs = defaultdict(float)
+        sentences = sent_tokenize(doc)
+        for sent in sentences:
+            tags = {}
+            words = {}
+            sentPOS = self.pos_tag_doc(sent)
+            for word, tag in sentPOS.itervalues():
+                tags.append(tag)
+                words.append(word)
+            POStrigrams = zip(tags, tags[1:], tags[2:])
+            wordtrigrams = zip(words, words[1:], words[2:])
+            for instance in POStrigrams:
+                POSfreqs[instance]+=1
+            for instance in wordtrigrams:
+                wordfreqs[instance]+=1
+        sortedPOS = sorted(POSfreqs.values, reverse = True)
+        sortedwords = sorted(wordfreqs.values, reverse = True)
+        add_stat_features(sortedwords[:300], 'word trigram frequency')
+        add_stat_features(sortedPOS[:100], 'POS trigram frequency')
         return features
 
+        def add_stat_features(values, name):
+            features['max %s' % name] = values[0]
+            features['min %s' % name] = values[-1]
+            features['%s mean' % name] = mean(values)
+            features['%s variance' % name] = variance(values)
+        
+        return features
 
     #########################
     # Utilities
+    
+    def mean(values):
+        """
+        Returns the mean of a list of values
+        """
+
+        mean = sum(values)/len(values)
+        return mean
+
+    def variance(values):
+        """
+        Returns the variance of a list of values
+        """
+
+        variance = 0
+        mean = mean(values)
+        for x in range(length):
+            variance += (values[x]-mean)**2
+        variance/=len(values)
+        return variance
 
     def pos_tag_doc(self, doc):
         """
