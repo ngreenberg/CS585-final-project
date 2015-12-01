@@ -154,22 +154,25 @@ def main(arg):
 
     print
 
-    print 'knn:          ', knn.predict(features_test)
-    print '  ', accuracy(knn.predict(features_test), authors_test)
+    print 'knn:          ', accuracy(knn.predict(features_test), authors_test)
+    # print 'knn:          ', knn.predict(features_test)
+    # print '  ', accuracy(knn.predict(features_test), authors_test)
 
-    print 'logistic:     ', logistic.predict(features_test)
-    print '  ', accuracy(logistic.predict(features_test), authors_test)
+    print 'logistic:     ', accuracy(logistic.predict(features_test), authors_test)
+    # print 'logistic:     ', logistic.predict(features_test)
+    # print '  ', accuracy(logistic.predict(features_test), authors_test)
     # print logistic.coef_
 
-    print 'random forest:', randomforest.predict(features_test)
-    print '  ', accuracy(randomforest.predict(features_test), authors_test)
+    print 'random forest:', accuracy(randomforest.predict(features_test), authors_test)
+    # print 'random forest:', randomforest.predict(features_test)
+    # print '  ', accuracy(randomforest.predict(features_test), authors_test)
     # importances = randomforest.feature_importances_
 
     # print 'svc:          ', svc.predict(features_test)
     # print '  ', accuracy(svc.predict(features_test), authors_test)
 
-    print
-    print 'gold:         ', authors_test
+    # print
+    # print 'gold:         ', authors_test
 
     return knn, logistic, randomforest, features_test, authors_test
 

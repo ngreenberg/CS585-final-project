@@ -11,6 +11,8 @@ from nltk.corpus import cmudict
 
 import spacy.en
 
+import numpy
+
 class Features(object):
     """
     A class for collecting features from a document. Instantiation is
@@ -43,10 +45,18 @@ class Features(object):
         features['characters per paragraph'] = charcount / paragraphcount
         features['characters per document'] = charcount
 
+        features['word characters length variance'] = numpy.std(
+            self.word_char_length_variance(doc))
+        features['sentence characters length variance'] = numpy.std(
+            self.sentence_char_length_variance(doc))
+
         # extract words features
         features['words per sentence'] = wordcount / sentencecount
         features['words per paragraph'] = wordcount / paragraphcount
         features['words per document'] = wordcount
+
+        features['sentence words length variance'] = numpy.std(
+            self.sentence_words_length_variance(doc))
 
         # extract sentences features
         features['sentences per paragraph'] = sentencecount / paragraphcount
@@ -72,19 +82,25 @@ class Features(object):
             features['%d per word' % i] = pos_counts[i] / poswordcount
 
 
-        # extract noun phrase features
-        phrase_sum = 0
-        phrase_count = 0
-        noun_chunks = tokens.noun_chunks
-        for chunk in noun_chunks:
-            phrase = chunk.orth_
-            if not phrase.isspace():
-                phrase_sum += len(chunk)
-                phrase_count += 1
-        features['words per noun phrase'] = phrase_sum / phrase_count
+        # extract vocab features
+        vocabsize = len(self.vectorize_doc_simple(doc))
+        features['vocab size'] = vocabsize
+        features['words per vocab size'] = wordcount / vocabsize
 
         return features
 
+    #########################
+    # Features
+
+    def word_char_length_variance(self, doc):
+        return [len(word) for word in self.tokenize_doc_simple(doc)]
+
+    def sentence_char_length_variance(self, doc):
+        return [len(sentence) for sentence in sent_tokenize(doc)]
+
+    def sentence_words_length_variance(self, doc):
+        return [len(self.tokenize_doc_simple(sentence))
+                for sentence in sent_tokenize(doc)]
 
     #########################
     # Utilities
@@ -95,7 +111,7 @@ class Features(object):
         these pairings.
         """
 
-        return self.spacy(doc)
+        return self.spacy(doc, tag=True, parse=False)
 
     def vectorize_pos_tags(self, tokens):
         """
