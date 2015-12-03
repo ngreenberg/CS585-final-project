@@ -16,6 +16,8 @@ from sklearn import linear_model
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import svm
 
+from sklearn.feature_extraction import DictVectorizer
+
 from features import Features
 
 from progress import progress_bar
@@ -33,18 +35,21 @@ def create_dataset(featext):
     authors = [file_name.split('___')[0] for file_name in files]
     authors = index_authors(authors)
 
-    features = []
+    feature_dicts = []
 
     for count, file_name in enumerate(files):
+        # print progress bar
         sys.stdout.write('\r%s' % progress_bar(count, len(files)))
         sys.stdout.flush()
-        features.append(feature_vector(featext.extract_features(get_content(file_name))))
+
+        feature_dict = featext.extract_features(get_content(file_name))
+        feature_dicts.append(feature_dict)
     print '\r%s' % progress_bar(len(files), len(files))
 
     # features = [feature_vector(FeatExtextract_features(get_content(file_name)))
     #             for file_name in files]
 
-    return np.array(features), np.array(authors)
+    return np.array(feature_dicts), np.array(authors)
 
 def index_authors(authors):
     """
@@ -67,13 +72,6 @@ def get_content(file_name):
     """
 
     return codecs.open(os.path.join(PATH, file_name), 'r', 'utf8').read()
-
-def feature_vector(features):
-    """
-    Returns a feature vector given a dictionary of features.
-    """
-
-    return features.values()
 
 def accuracy(predictions, gold_labels):
     """
@@ -99,9 +97,15 @@ def main(arg):
 
     print '---creating dataset---',
     print '[' +  datetime.datetime.now().ctime() + ']'
-    features, authors = create_dataset(featext)
+    feature_dicts, authors = create_dataset(featext)
     print '---created dataset---',
     print '[' +  datetime.datetime.now().ctime() + ']'
+    print
+
+    vec = DictVectorizer()
+    vectorized_features = vec.fit_transform(feature_dicts)
+    features = vectorized_features.toarray()
+    print vec.get_feature_names()
     print
 
     np.random.seed()

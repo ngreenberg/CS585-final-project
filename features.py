@@ -81,6 +81,12 @@ class Features(object):
         for i in xrange(82, 101):
             features['%d per word' % i] = pos_counts[i] / poswordcount
 
+        sorted_pos_counts = sorted(pos_counts, key=pos_counts.get, reverse=True)
+        features['1st top tag'] = str(sorted_pos_counts[0])
+        features['2nd top tag'] = str(sorted_pos_counts[1])
+        features['3rd top tag'] = str(sorted_pos_counts[2])
+        features['4th top tag'] = str(sorted_pos_counts[3])
+        features['5th top tag'] = str(sorted_pos_counts[4])
 
         # extract vocab features
         vocabsize = len(self.vectorize_doc_simple(doc))
